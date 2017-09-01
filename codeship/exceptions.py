@@ -30,6 +30,8 @@ class SessionExpiredError(Exception):
     Raised when the token is for an expired session
     https://codeship-api.api-docs.io/v2/authentication/authentication-endpoint
     """
+    pass
+
 
 class BadResponse(Exception):
     """

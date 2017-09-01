@@ -9,6 +9,10 @@ python-codeship
 .. image:: https://app.codeship.com/projects/576f7770-7139-0135-8fd4-6a7526e09250/status?branch=master
         :target: https://app.codeship.com/projects/243312
 
+.. image:: https://codeclimate.com/github/codeclimate/codeclimate/badges/gpa.svg
+   :target: https://codeclimate.com/github/codeclimate/codeclimate
+   :alt: Code Climate
+
 .. image:: https://readthedocs.org/projects/codeship/badge/?version=latest
         :target: https://codeship.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status

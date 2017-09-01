@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
+"""
+Handles authentication
+"""
 
-import pprint
 from datetime import datetime
 
 import requests
 
 from .base import BaseAPI
+from .exceptions import UnauthorizedError
 
 
 class Auth(BaseAPI):
@@ -29,16 +32,31 @@ class Auth(BaseAPI):
         self.email = kwargs.get('email')
         self.password = kwargs.get('password')
         self.organizations = []
-        self.access_token = None
+        super(Auth, self).__init__(*args, **kwargs)
 
     @classmethod
     def create_session(cls, **kwargs):
+        """
+        Create a new session using basic auth
+        Args:
+            email
+            password
+        Return:
+            An Auth object
+        """
         email, password = kwargs.get('email'), kwargs.get('password')
         auth = cls(email=email, password=password)
         auth.load()
         return auth
 
     def load(self):
+        """
+        Performs a request to the auth endpoint to create a new session for the
+        given username and password
+        """
+        if not (self.email and self.password):
+            raise UnauthorizedError('Missing `email` or `password` values')
+
         basic_auth = requests.auth.HTTPBasicAuth(self.email, self.password)
         data = self._post(self._url(), auth=basic_auth)
         data = self._read_data(data)
@@ -46,8 +64,11 @@ class Auth(BaseAPI):
         for attr in data.keys():
             setattr(self, attr, data[attr])
 
-        if isinstance(self.expires_at, str) or isinstance(self.expires_at, int):
-            self.expires_at = datetime.utcfromtimestamp(self.expires_at)
+        if isinstance(self.expires_at, (int, str)):
+            self.expires_at = datetime.utcfromtimestamp(float(self.expires_at))
 
     def is_active(self):
+        """
+        Returns true if the current time is passed the expired_at
+        """
         return self.expires_at and datetime.utcnow() > self.expires_at

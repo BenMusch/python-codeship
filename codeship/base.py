@@ -1,35 +1,37 @@
 # -*- coding: utf-8 -*-
-import os
-import json
-try:
-    import urlparse
-except ImportError:
-    from urllib import parse as urlparse
-
+"""
+Base module to handle interactions with the Codeship API
+"""
 import requests
 
-from exceptions import *
+from .exceptions import JSONReadError, BadResponse, UnauthorizedError
 
 
 class BaseAPI(object):
+    """
+    Includes methods to handle interactions with the API
+
+    Subclass BaseAPI to create a new resource
+    """
     endpoint = "https://api.codeship.com/v2/"
     namespace = ""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *_args, **_kwargs):
         self.access_token = None
-        # handle auth
-
 
     def _read_data(self, response):
+        """
+        Given a response, parses the data and raises any necessary errors
+        """
         if response.status_code == 401:
             raise UnauthorizedError('Incorrect authorization')
 
         try:
             data = response.json()
-        except ValueError as e:
+        except ValueError as error:
             raise JSONReadError(
-                    'Read failed from Codeship: %s' % str(e)
-                    )
+                'Read failed from Codeship: %s' % str(error)
+                )
 
         if not response.ok:
             msg = data['errors']
@@ -38,14 +40,20 @@ class BaseAPI(object):
             return data
 
     def _post(self, url, **kwargs):
-        headers = { 'Content-Type': 'application/json' }
+        """
+        Performs a post request
+        """
+        headers = {'Content-Type': 'application/json'}
         return requests.post(url, headers=headers, **kwargs)
 
     def _url(self, path=""):
-        return self.endpoint + self.namespace + path
+        """
+        Generates the url for the current resource
 
-    def __init__(self, *args, **kwargs):
-        self.access_token = None
+        Define the namespace variable in a class so that _url() is always
+        scoped with the namespace
+        """
+        return self.endpoint + self.namespace + path
 
     def __str__(self):
         return "<%s>" % self.__class__.__name__
@@ -55,4 +63,3 @@ class BaseAPI(object):
 
     def __repr__(self):
         return str(self)
-
