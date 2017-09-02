@@ -4,7 +4,12 @@ Base module to handle interactions with the Codeship API
 """
 import requests
 
-from .exceptions import JSONReadError, BadResponse, UnauthorizedError
+from .exceptions import JSONReadError, BadResponse, UnauthorizedError, \
+                        MissingRequiredParamater
+
+
+PRO = 'pro'
+BASIC = 'basic'
 
 
 class BaseAPI(object):
@@ -15,11 +20,13 @@ class BaseAPI(object):
     """
     endpoint = "https://api.codeship.com/v2/"
     namespace = ""
+    requred_attributes = []
 
-    def __init__(self, *_args, **_kwargs):
+    def __init__(self, *_args, **kwargs):
         self.access_token = None
+        self.__set_attrs(self, **kwargs)
 
-    def _read_data(self, response):
+    def __read_data(self, response):
         """
         Given a response, parses the data and raises any necessary errors
         """
@@ -39,14 +46,15 @@ class BaseAPI(object):
         else:
             return data
 
-    def _post(self, url, **kwargs):
+    def __post(self, url, **kwargs):
         """
         Performs a post request
         """
+        self._check_required_attributes()
         headers = {'Content-Type': 'application/json'}
         return requests.post(url, headers=headers, **kwargs)
 
-    def _url(self, path=""):
+    def __url(self, path=""):
         """
         Generates the url for the current resource
 
@@ -54,6 +62,30 @@ class BaseAPI(object):
         scoped with the namespace
         """
         return self.endpoint + self.namespace + path
+
+    def __check_required_attributes(self):
+        missing_keys = filter(self.required_attributes,
+                              lambda attr: not hasattr(self, key))
+        if missing_keys:
+            raise MissingRequiredParamater(
+                    'Missing required parameters: {}'.format(
+                        ', '.join(missing_keys)
+                        )
+                    )
+
+    def __validate(self):
+        """
+        Perform validation before making requests.
+        Hook into this method to add custom validations
+
+        Note: This is not used for control flow. You must raise an error to
+        perform validation
+        """
+        self.__check_required_attributes()
+
+    def __set_attrs(self, **kwargs):
+        for attr in kwargs.keys():
+            setattr(self, attr, kwargs[attr])
 
     def __str__(self):
         return "<%s>" % self.__class__.__name__

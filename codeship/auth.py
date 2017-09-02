@@ -26,11 +26,12 @@ class Auth(BaseAPI):
         expires_at (int): unix timestamp of expiration
     """
     namespace = "auth/"
+    required_attributes = ['password', 'email']
 
     def __init__(self, *args, **kwargs):
         self.expires_at = None
-        self.email = kwargs.get('email')
-        self.password = kwargs.get('password')
+        self.email = None
+        self.password = None
         self.organizations = []
         super(Auth, self).__init__(*args, **kwargs)
 
@@ -54,15 +55,11 @@ class Auth(BaseAPI):
         Performs a request to the auth endpoint to create a new session for the
         given username and password
         """
-        if not (self.email and self.password):
-            raise UnauthorizedError('Missing `email` or `password` values')
-
         basic_auth = requests.auth.HTTPBasicAuth(self.email, self.password)
-        data = self._post(self._url(), auth=basic_auth)
-        data = self._read_data(data)
+        data = self.__post(self.__url(), auth=basic_auth)
+        data = self.__read_data(data)
 
-        for attr in data.keys():
-            setattr(self, attr, data[attr])
+        self._set_attrs(**data)
 
         if isinstance(self.expires_at, (int, str)):
             self.expires_at = datetime.utcfromtimestamp(float(self.expires_at))

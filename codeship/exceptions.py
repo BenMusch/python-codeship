@@ -38,3 +38,14 @@ class BadResponse(Exception):
     Handles any non-2x response from the API not handled above
     """
     pass
+
+
+class IncorectTypeError(Exception):
+    """
+    Ensures that pro/basic builds/projects are not given attributes for the
+    other type
+    """
+
+
+class MissingRequiredParamater(Exception):
+    pass
