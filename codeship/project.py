@@ -29,6 +29,7 @@ class Project(BaseAPI):
 
     def create(self, *args, **kwargs):
         # validate correct types
+        pass
 
     @classmethod
     def list(cls, *args, **kwargs):
@@ -44,8 +45,9 @@ class Project(BaseAPI):
         return "{}organizations/{}/{}".format(self.base_url,
                                               self.organization_uuid,
                                               self.namespace)
-    def __basic():
+
+    def __basic(self):
         return self.type == BASIC
 
-    def __pro():
+    def __pro(self):
         return self.type == PRO
