@@ -4,7 +4,7 @@ import responses
 from datetime import datetime
 
 from ..auth import Auth
-from ..exceptions import UnauthorizedError
+from ..exceptions import UnauthorizedError, MissingRequiredParameter
 
 from .base import BaseTest
 
@@ -50,8 +50,8 @@ class TestAuth(BaseTest):
 
     @responses.activate
     def test_missing_auth(self):
-        with self.assertRaises(UnauthorizedError):
+        with self.assertRaises(MissingRequiredParameter):
             Auth.create_session(email=self.email)
 
-        with self.assertRaises(UnauthorizedError):
+        with self.assertRaises(MissingRequiredParameter):
             Auth.create_session(password=self.password)

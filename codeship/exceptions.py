@@ -47,5 +47,5 @@ class IncorectTypeError(Exception):
     """
 
 
-class MissingRequiredParamater(Exception):
+class MissingRequiredParameter(Exception):
     pass

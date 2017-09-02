@@ -41,13 +41,13 @@ class Project(BaseAPI):
         if self.type not in [PRO, BASIC]:
             raise IncorrectTypeError("type must be `pro` or `basic`")
 
-    def __url(self, org_uuid):
+    def _url(self, org_uuid):
         return "{}organizations/{}/{}".format(self.base_url,
                                               self.organization_uuid,
                                               self.namespace)
 
-    def __basic(self):
+    def is_basic(self):
         return self.type == BASIC
 
-    def __pro(self):
+    def is_pro(self):
         return self.type == PRO

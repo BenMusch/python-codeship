@@ -32,7 +32,7 @@ class Auth(BaseAPI):
         self.expires_at = None
         self.email = None
         self.password = None
-        self.organizations = []
+        self.organizations = None
         super(Auth, self).__init__(*args, **kwargs)
 
     @classmethod
@@ -56,8 +56,8 @@ class Auth(BaseAPI):
         given username and password
         """
         basic_auth = requests.auth.HTTPBasicAuth(self.email, self.password)
-        data = self.__post(self.__url(), auth=basic_auth)
-        data = self.__read_data(data)
+        data = self._post(self._url(), auth=basic_auth)
+        data = self._read_data(data)
 
         self._set_attrs(**data)
 

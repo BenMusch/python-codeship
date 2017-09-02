@@ -5,7 +5,7 @@ Base module to handle interactions with the Codeship API
 import requests
 
 from .exceptions import JSONReadError, BadResponse, UnauthorizedError, \
-                        MissingRequiredParamater
+                        MissingRequiredParameter
 
 
 PRO = 'pro'
@@ -24,9 +24,9 @@ class BaseAPI(object):
 
     def __init__(self, *_args, **kwargs):
         self.access_token = None
-        self.__set_attrs(self, **kwargs)
+        self._set_attrs(**kwargs)
 
-    def __read_data(self, response):
+    def _read_data(self, response):
         """
         Given a response, parses the data and raises any necessary errors
         """
@@ -41,12 +41,11 @@ class BaseAPI(object):
                 )
 
         if not response.ok:
-            msg = data['errors']
-            raise BadResponse(msg)
+            raise BadResponse(data.get('errors'))
         else:
             return data
 
-    def __post(self, url, **kwargs):
+    def _post(self, url, **kwargs):
         """
         Performs a post request
         """
@@ -54,7 +53,7 @@ class BaseAPI(object):
         headers = {'Content-Type': 'application/json'}
         return requests.post(url, headers=headers, **kwargs)
 
-    def __url(self, path=""):
+    def _url(self, path=""):
         """
         Generates the url for the current resource
 
@@ -63,17 +62,18 @@ class BaseAPI(object):
         """
         return self.endpoint + self.namespace + path
 
-    def __check_required_attributes(self):
-        missing_keys = filter(self.required_attributes,
-                              lambda attr: not hasattr(self, key))
+    def _check_required_attributes(self):
+        is_missing = lambda a: not hasattr(self, a) or getattr(self, a) is None
+        missing_keys = filter(is_missing, self.required_attributes)
+
         if missing_keys:
-            raise MissingRequiredParamater(
+            raise MissingRequiredParameter(
                     'Missing required parameters: {}'.format(
                         ', '.join(missing_keys)
                         )
                     )
 
-    def __validate(self):
+    def _validate(self):
         """
         Perform validation before making requests.
         Hook into this method to add custom validations
@@ -83,7 +83,7 @@ class BaseAPI(object):
         """
         self.__check_required_attributes()
 
-    def __set_attrs(self, **kwargs):
+    def _set_attrs(self, **kwargs):
         for attr in kwargs.keys():
             setattr(self, attr, kwargs[attr])
 
